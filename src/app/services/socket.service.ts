@@ -1,3 +1,4 @@
+import { environment } from './../../environments/environment';
 import { Message } from './../../models/message';
 import { User } from './../../models/user';
 import { Injectable } from '@angular/core';
@@ -10,7 +11,7 @@ import { Subject, fromEventPattern } from 'rxjs';
 export class SocketService {
 
   // URL na qual será feita a conexão
-  private url = 'http://localhost:4444';
+  private url = environment.apiUrl;
   // Criação do socket para conexão com a URL especificada
   private socket; //= socketio(this.url, {autoConnect: false});
   // Subject para inscrever recebimento de mensagem
