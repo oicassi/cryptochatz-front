@@ -1,0 +1,119 @@
+html { height: 100vh; }
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0px;
+    padding: 0px;
+}
+
+.geralContainer {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(211, 193, 255);
+    margin:0px;
+}
+
+.mainBoxContainer {
+    background-color: rgb(254, 255, 233);
+    height: 95%;
+    padding-bottom: 0;
+    border-radius: 6px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.226);
+}
+
+.chatContainer {
+    height:80%;
+    overflow-y: auto
+}
+
+.msg {
+    max-height: 20vh ;
+    min-height: 100px !important;
+    margin: 10px;
+}
+
+@mixin msgBody {
+    border-radius: 4px;
+    padding: 10px;
+    position: relative;
+    padding-top: 23px;
+    padding-bottom: 17px;
+    max-height: inherit !important;
+    min-height: inherit !important;
+}
+
+.msgBodyMe {
+    @include msgBody;
+    background-color: rgb(171, 255, 160);
+    transition: box-shadow 0.3s;
+    box-shadow: 2px 2px rgba(128, 128, 128, 0.6);
+}
+
+.msgBodyMe:hover {
+    box-shadow: 2px 2px 8px rgba(0,0,0,.5);
+}
+
+.msgBodyThey {
+    @include msgBody;
+    background-color: rgb(184, 255, 246);
+    transition: box-shadow 0.3s;
+    box-shadow: -2px 2px rgba(128, 128, 128, 0.6);
+}
+
+.msgBodyThey:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,.5);
+}
+
+.msgBodySystem {
+    border-radius: 4px;
+    padding: 10px;
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgb(255, 207, 184);
+    transition: box-shadow 0.3s;
+    box-shadow: 0px 2px rgba(128, 128, 128, 0.6);
+}
+
+.msgBodySystem:hover {
+    box-shadow: 0 0 10px rgba(0,0,0,.5);
+}
+
+.msgHeaderContainer {
+    margin-bottom: 0px !important;
+    height: 20px !important;
+    min-height: 20px !important;
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+.msgHeaderTxt {
+    margin-bottom: 0;
+    text-align: start;
+    font-size: small !important;
+    color: rgb(82, 16, 82);
+}
+
+.msgFooterContainer {
+    position: absolute;
+    bottom: 5px; 
+    right: 5px;
+}
+
+.msgFooterTxt {
+    text-align: end; 
+    margin: 0 5px;
+    font-size: small;
+    color: rgba(128, 128, 128, 0.8);
+}
+.chatFooterContainer{
+    border-top: 2px solid gainsboro;
+    position: relative;
+    bottom: 0;
+    background-color: rgb(241, 241, 241);
+    margin-bottom: 0px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 8px;
+}

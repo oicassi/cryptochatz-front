@@ -1,0 +1,120 @@
+<p-toast [style]="{marginTop: '80px'}"></p-toast>
+<div class="p-grid p-justify-center p-align-center geralContainer">
+  <!-- class vertical-container-->
+  <div class="p-col-10 mainBoxContainer">
+    <div class="p-grid" style="height: 102%;">
+      <div #chatContainer class="p-col-12 p-md-12 p-lg-12 chatContainer">
+
+        <!-- Template HTML de cada mensagem -->
+        <div *ngFor="let message of allMessages"
+          ngClass="{{ 'p-grid' }} {{ 'msg' }} {{ message.id == id ? 'p-justify-end' : message.id != -999 ? 'p-justify-start' : 'p-justify-center' }}">
+          <p-overlayPanel #op>
+            <ng-template pTemplate>
+              <h3 style="text-align: center;">Mensagem criptografada</h3>
+              {{message.bodyEncrypted}}
+            </ng-template>
+          </p-overlayPanel>
+          <div
+            ngClass="{{ 'p-col-12' }} {{ 'p-md-10' }}  {{ 'p-lg-8' }} {{ message.id == id ? 'msgBodyMe' : 'msgBodyThey' }}"
+            (click)="op.toggle($event)" style="cursor: pointer;" *ngIf="message.id != -999">
+            <div class="msgHeaderContainer">
+              <p class="msgHeaderTxt">
+                {{ message.id == id ? 'eu' : message.from }}
+              </p>
+            </div>
+            <p-scrollPanel [style]="{width: '90%', height: '90%' }">
+              <p>{{message.body}}</p>
+            </p-scrollPanel>
+            <div class="msgFooterContainer">
+              <p class="msgFooterTxt">{{ message.data }}</p>
+            </div>
+          </div>
+          <div ngClass="{{ 'p-col-12' }} {{ 'p-md-6' }}  {{ 'p-lg-4' }} {{ 'msgBodySystem' }}" *ngIf="message.id == -999">
+            <p>{{message.body}}</p>
+          </div>
+        </div>
+        <!-- Fim template HTML das mensagens -->
+
+
+
+      </div>
+      <!-- Footer -->
+      <div class="p-col-12 chatFooterContainer">
+        <div class="p-grid p-justify-center">
+          <!-- Dialog com as informações do usuário conectado -->
+          <p-dialog header="Info" [(visible)]="showInfoDialog" [modal]="true" [style]="{width: '50vw'}"
+            [baseZIndex]="10000">
+            <p><span style="font-weight: bold; color:forestgreen" *ngIf="isConnected"><i
+                  class="pi pi-check"></i>Conectado</span></p>
+            <p><span style="font-weight: bold; color: mediumslateblue;" *ngIf="isChatting"><i
+                  class="pi pi-comments"></i>Em chat</span></p>
+            <p><span style="font-weight: bold;">ID: </span> {{id}}</p>
+            <p><span style="font-weight: bold;">Nome: </span>{{name}}</p>
+            <p><span style="font-weight: bold;">SocketId: </span>{{socketId}}</p>
+            <p-accordion>
+              <p-accordionTab header="Private Key">
+                {{privateKey}}
+              </p-accordionTab>
+              <p-accordionTab header="Public Key">
+                {{publicKey}}
+              </p-accordionTab>
+              <p-accordionTab header="Symmetric Key">
+                {{symKey}}
+              </p-accordionTab>
+            </p-accordion>
+          </p-dialog>
+          <!-- Botão para exibir as informações do usuário conectado -->
+          <div class="p-col-2">
+            <button pButton type="button" icon="pi pi-info" label="info" class="ui-button-warning"
+              (click)="showInfoDialog = true"></button>
+          </div>
+
+          <!-- Chat iniciado -->
+          <div class="p-col-8" *ngIf="isConnected && isChatting">
+            <div class="ui-inputgroup">
+              <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-pencil"
+                  style="line-height: 0.5;"></i></span>
+              <input type="text" style="width: 100%;min-width: 100px;" placeholder="Digite a mensagem" required
+                [(ngModel)]="msgBody" (keyup.enter)="send()" autofocus>
+            </div>
+          </div>
+          <div class="p-col-2" style="float: right;" *ngIf="isConnected && isChatting">
+            <p-button label="Send" [disabled]="!msgBody" class="ui-button-success"
+              pTooltip="{{msgBody ? '' : 'A mensagem não pode estar vazia'}}" tooltipPosition="bottom"
+              icon="pi pi-comment" (click)="send()" style="float: right;"></p-button>
+          </div>
+
+          <!-- Usuário conectado chat não iniciado -->
+          <div class="p-col-8" *ngIf="isConnected && !isChatting">
+            <div class="ui-inputgroup" style="position: relative;left: 15%;">
+              <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-key"
+                  style="line-height: 0.5;"></i></span>
+              <input type="text" style="width: 50%;min-width: 100px;" placeholder="Chave simétrica" required
+                [(ngModel)]="symKey" (keyup.enter)="startChat()" [disabled]="symKeyValid" autofocus>
+            </div>
+          </div>
+          <div class="p-col-2" style="float: right;" *ngIf="isConnected && !isChatting">
+            <p-button label="Entrar em chat" [disabled]="!symKey"
+              pTooltip="{{symKey ? '' : 'Chave simétrica é obrigatória para iniciar chat'}}" tooltipPosition="bottom"
+              icon="pi pi-comments" (click)="startChat()" style="float: right;"></p-button>
+          </div>
+
+          <!-- Usuário desconectado -->
+          <div class="p-col-8" *ngIf="!isConnected">
+            <div class="ui-inputgroup" style="position: relative;left: 15%;">
+              <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-user"
+                  style="line-height: 0.5;"></i></span>
+              <input type="text" style="width: 50%;min-width: 100px;" placeholder="Username" required [(ngModel)]="name"
+                (keyup.enter)="connect()" autofocus [disabled] = "!publicKey && !privateKey"
+                pTooltip="{{privateKey && publicKey ? '' : 'Gerando par de chaves assimétricas'}}">
+            </div>
+          </div>
+          <div class="p-col-2" style="float: right;" *ngIf="!isConnected">
+            <p-button label="Conectar" [disabled]="!name" pTooltip="{{name ? '' : 'Nome é obrigatório para conexão'}}"
+              tooltipPosition="bottom" icon="pi pi-external-link" (click)="connect()" style="float: right;"></p-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
