@@ -21,6 +21,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   symKey: string;
   name: string;
   id: number;
+  btnWait: boolean = false;
   socketId: string;
   msgBody: string;
   allMessages: Message[] = [];
@@ -172,6 +173,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   }
 
   connect() {
+    this.btnWait = true;
     this.user.id = this.id;
     this.user.name = this.name;
     this.user.publicKey = this.publicKey;

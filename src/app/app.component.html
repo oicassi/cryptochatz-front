@@ -110,7 +110,7 @@
             </div>
           </div>
           <div class="p-col-2" style="float: right;" *ngIf="!isConnected">
-            <p-button label="Conectar" [disabled]="!name" pTooltip="{{name ? '' : 'Nome é obrigatório para conexão'}}"
+            <p-button label="Conectar" [disabled]="!name && btnWait" pTooltip="{{name ? '' : 'Nome é obrigatório para conexão'}}"
               tooltipPosition="bottom" icon="pi pi-external-link" (click)="connect()" style="float: right;"></p-button>
           </div>
         </div>
