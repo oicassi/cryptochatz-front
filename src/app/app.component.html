@@ -3,7 +3,7 @@
   <!-- class vertical-container-->
   <div class="p-col-10 mainBoxContainer">
     <div class="p-grid" style="height: 102%;">
-      <div #chatContainer class="p-col-12 p-md-12 p-lg-12 chatContainer">
+      <div #chatContainer (scroll)="checkScroll()" class="p-col-12 p-md-12 p-lg-12 chatContainer">
 
         <!-- Template HTML de cada mensagem -->
         <div *ngFor="let message of allMessages"
@@ -29,17 +29,18 @@
               <p class="msgFooterTxt">{{ message.data }}</p>
             </div>
           </div>
-          <div ngClass="{{ 'p-col-12' }} {{ 'p-md-6' }}  {{ 'p-lg-4' }} {{ 'msgBodySystem' }}" *ngIf="message.id == -999">
+          <div ngClass="{{ 'p-col-12' }} {{ 'p-md-6' }}  {{ 'p-lg-4' }} {{ 'msgBodySystem' }}"
+            *ngIf="message.id == -999">
             <p>{{message.body}}</p>
           </div>
         </div>
         <!-- Fim template HTML das mensagens -->
 
-
-
       </div>
+
       <!-- Footer -->
       <div class="p-col-12 chatFooterContainer">
+
         <div class="p-grid p-justify-center">
           <!-- Dialog com as informações do usuário conectado -->
           <p-dialog header="Info" [(visible)]="showInfoDialog" [modal]="true" [style]="{width: '50vw'}"
@@ -74,12 +75,13 @@
             <div class="ui-inputgroup">
               <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-pencil"
                   style="line-height: 0.5;"></i></span>
-              <input type="text" style="width: 100%;min-width: 100px;" placeholder="Digite a mensagem" required
-                [(ngModel)]="msgBody" (keyup.enter)="send()" autofocus>
+              <input type="text"
+                style="width: 100%;min-width: 100px; font-size: medium !important; word-break: break-word !important;overflow-wrap: break-word !important"
+                placeholder="Digite a mensagem" required [(ngModel)]="msgBody" (keyup.enter)="send()" (input)="typing()" autofocus>
             </div>
           </div>
           <div class="p-col-2" style="float: right;" *ngIf="isConnected && isChatting">
-            <p-button label="Send" [disabled]="!msgBody" class="ui-button-success"
+            <p-button label="Enviar" [disabled]="!msgBody" class="ui-button-success"
               pTooltip="{{msgBody ? '' : 'A mensagem não pode estar vazia'}}" tooltipPosition="bottom"
               icon="pi pi-comment" (click)="send()" style="float: right;"></p-button>
           </div>
@@ -89,12 +91,13 @@
             <div class="ui-inputgroup" style="position: relative;left: 15%;">
               <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-key"
                   style="line-height: 0.5;"></i></span>
-              <input type="text" style="width: 50%;min-width: 100px;" placeholder="Chave simétrica" required
-                [(ngModel)]="symKey" (keyup.enter)="startChat()" [disabled]="symKeyValid" autofocus>
+              <input type="text" style="width: 50%;min-width: 100px; font-size: medium !important;"
+                placeholder="Chave simétrica" required [(ngModel)]="symKey" (keyup.enter)="startChat()"
+                [disabled]="symKeyValid" autofocus>
             </div>
           </div>
           <div class="p-col-2" style="float: right;" *ngIf="isConnected && !isChatting">
-            <p-button label="Entrar em chat" [disabled]="!symKey"
+            <p-button label="Entrar" [disabled]="!symKey"
               pTooltip="{{symKey ? '' : 'Chave simétrica é obrigatória para iniciar chat'}}" tooltipPosition="bottom"
               icon="pi pi-comments" (click)="startChat()" style="float: right;"></p-button>
           </div>
@@ -104,17 +107,36 @@
             <div class="ui-inputgroup" style="position: relative;left: 15%;">
               <span class="ui-inputgroup-addon" style="margin-left: 7px;"><i class="pi pi-user"
                   style="line-height: 0.5;"></i></span>
-              <input type="text" style="width: 50%;min-width: 100px;" placeholder="Username" required [(ngModel)]="name"
-                (keyup.enter)="connect()" autofocus [disabled] = "!publicKey && !privateKey"
+              <input type="text" style="width: 50%;min-width: 100px; font-size: medium !important;"
+                placeholder="Username" required [(ngModel)]="name" (keyup.enter)="connect()" autofocus
+                [disabled]="!publicKey && !privateKey"
                 pTooltip="{{privateKey && publicKey ? '' : 'Gerando par de chaves assimétricas'}}">
             </div>
           </div>
           <div class="p-col-2" style="float: right;" *ngIf="!isConnected">
-            <p-button label="Conectar" [disabled]="!name && btnWait" pTooltip="{{name ? '' : 'Nome é obrigatório para conexão'}}"
-              tooltipPosition="bottom" icon="pi pi-external-link" (click)="connect()" style="float: right;"></p-button>
+            <p-button label="Conectar" [disabled]="!name && btnWait"
+              pTooltip="{{name ? '' : 'Nome é obrigatório para conexão'}}" tooltipPosition="bottom"
+              icon="pi pi-external-link" (click)="connect()" style="float: right;"></p-button>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Extra stuff -->
+  <!-- Botão para scroll to bottom -->
+  <div *ngIf="showBtnScroll" style="position: fixed; top: 25px; right: 25px;">
+    <button pButton type="button" pTooltip="Scroll to bottom" tooltipPosition="bottom"
+      class="ui-button-rounded ui-button-success" icon="pi pi-angle-double-down" (click)="forceScroll()">
+    </button>
+  </div>
+
+  <!-- Info de alguém está digitando -->
+  <div style="position:fixed;bottom: 16%;left: 10%; z-index: 9999; width: 25px;" *ngIf="theyTyping">
+    <button pButton type="button" pTooltip="Alguém está digtando" disabled class="ui-button-rounded ui-button-secondary"
+      icon="pi pi-ellipsis-h">
+      <p-progressBar mode="indeterminate" [style]="{'height': '3px'}"></p-progressBar>
+    </button>
+  </div>
+    
 </div>

@@ -22,6 +22,9 @@ export class AppComponent implements OnInit, AfterViewChecked {
   name: string;
   id: number;
   btnWait: boolean = false;
+  canScroll: boolean = false;
+  showBtnScroll: boolean = false;
+  theyTyping: boolean = false;
   socketId: string;
   msgBody: string;
   allMessages: Message[] = [];
@@ -59,6 +62,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         this.socketId = info.socketId;
         this.isConnected = true;
         this._messageServ.add({ severity: 'success', summary: 'Conectado', detail: 'Você está conectado ao servidor' });
+        this.btnWait = false;
       });
 
     // Procedimento do subscribe da solicitação da chave simétrica
@@ -108,14 +112,14 @@ export class AppComponent implements OnInit, AfterViewChecked {
         if (chatStarter.id != this.id) {
           let ms = `Chat iniciado por ${chatStarter.name} [ID: ${chatStarter.id}]`;
           let reqMsg = 'Requisitando a chave simétrica';
-          this._messageServ.add({severity: 'warn', summary: 'Aviso', detail: ms});
-          this._messageServ.add({severity: 'info', summary: 'Info', detail: reqMsg});
+          this._messageServ.add({ severity: 'warn', summary: 'Aviso', detail: ms });
+          this._messageServ.add({ severity: 'info', summary: 'Info', detail: reqMsg });
           let requestSymKeyInfo = {
             socketId: this.socketId,
             publicKey: this.publicKey,
             name: this.name,
             id: this.id
-        }
+          }
           await this._socketServ.requestSymKey(requestSymKeyInfo);
         }
       })
@@ -128,6 +132,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
           console.log('---------- MENSAGEM RECEBIDA E DESCRIPTOGRAFADA -----------');
           console.log(msg);
           this.allMessages.push(msg);
+          this.canScroll = true;
+          //this.scrollToBottom();
         }
       });
 
@@ -166,55 +172,105 @@ export class AppComponent implements OnInit, AfterViewChecked {
           this._messageServ.add({ severity: 'info', summary: 'Mudança de Hoster', detail: msg });
         }
       })
+
+    // Procedimento quando alguém está digitando
+    this._socketServ.receiveTyping()
+      .subscribe((id: number) => {
+        if (id != this.id) {
+          if (!this.theyTyping) {
+            this.theyTyping = true;
+            setTimeout(() => {
+              this.theyTyping = false;
+            }, 1000);
+          }
+        }
+      })
   }
 
   ngAfterViewChecked() {
-    this.scrollToBottom();
+    if (this.canScroll) {
+      this.scrollToBottom();
+    }
+
   }
 
   connect() {
-    this.btnWait = true;
-    this.user.id = this.id;
-    this.user.name = this.name;
-    this.user.publicKey = this.publicKey;
-    this.user.socketId = this.socketId;
-    console.log('Connectando e enviando a info:');
-    console.log('ID: ' + this.user.id);
-    console.log('UserName: ' + this.user.name);
-    console.log('Public Key: ' + this.user.publicKey);
-    console.log('SocketID: ' + this.user.socketId);
-    this._socketServ.connect(this.user);
+    if (!this.btnWait) {
+      this.btnWait = true;
+      this.user.id = this.id;
+      this.user.name = this.name;
+      this.user.publicKey = this.publicKey;
+      this.user.socketId = this.socketId;
+      console.log('Connectando e enviando a info:');
+      console.log('ID: ' + this.user.id);
+      console.log('UserName: ' + this.user.name);
+      console.log('Public Key: ' + this.user.publicKey);
+      console.log('SocketID: ' + this.user.socketId);
+      this._socketServ.connect(this.user);
+    } else {
+      this._messageServ.add({ severity: 'warn', summary: 'Ei, espera um pouco!', detail: 'Tentando conectar ao servidor' })
+    }
   }
 
   startChat() {
-    let userChatInfo = {
-      id: this.id,
-      name: this.name,
-      socketId: this.socketId,
+    if (!this.btnWait) {
+      this.btnWait = true;
+      let userChatInfo = {
+        id: this.id,
+        name: this.name,
+        socketId: this.socketId,
+      }
+      this._socketServ.startChat(userChatInfo);
+    } else {
+      this._messageServ.add({ severity: 'warn', summary: 'Ei, espera um pouco!', detail: 'Tentando entrar no chat' })
     }
-    this._socketServ.startChat(userChatInfo);
   }
 
   send() {
-    let msg: Message = new Message();
-    msg.from = this.name;
-    msg.id = this.id;
-    msg.data = (moment().format('DD/MM/YYYY - HH:mm'));
-    msg.timeStamp = moment().valueOf();
-    // Criptografar o body da mensagem com a chave simétrica
-    msg.bodyEncrypted = CryptoJS.AES.encrypt(this.msgBody.trim(), this.symKey.trim()).toString();
-    msg.body = '';
-    console.log('--------- MENSAGEM ENVIADA ----------');
-    console.log(msg);
-    this._socketServ.sendMsg(msg);
-    this.msgBody = '';
+    if (this.msgBody) {
+      let msg: Message = new Message();
+      msg.from = this.name;
+      msg.id = this.id;
+      msg.data = (moment().format('DD/MM/YYYY - HH:mm'));
+      msg.timeStamp = moment().valueOf();
+      // Criptografar o body da mensagem com a chave simétrica
+      msg.bodyEncrypted = CryptoJS.AES.encrypt(this.msgBody.trim(), this.symKey.trim()).toString();
+      msg.body = '';
+      console.log('--------- MENSAGEM ENVIADA ----------');
+      console.log(msg);
+      this._socketServ.sendMsg(msg);
+      this.msgBody = '';
+    } else {
+      this._messageServ.add({ severity: 'error', summary: 'Erro', detail: 'Mensagem vazia' });
+    }
+  }
+
+  typing() {
+    this._socketServ.sendTyping(this.id);
   }
 
   scrollToBottom(): void {
     try {
-      this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+      if (this.chatContainer.nativeElement.scrollHeight - this.chatContainer.nativeElement.scrollTop <= (this.chatContainer.nativeElement.offsetHeight + 100)) {
+        this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+      }
     } catch (err) {
       console.log(err);
+    } finally {
+      this.canScroll = false;
     }
+  }
+  checkScroll() {
+    if (this.chatContainer.nativeElement.scrollHeight - this.chatContainer.nativeElement.scrollTop >= (this.chatContainer.nativeElement.offsetHeight + 100)) {
+      this.showBtnScroll = true;
+    } else {
+      this.showBtnScroll = false;
+    }
+  }
+
+  forceScroll(): void {
+    this.canScroll = true;
+    this.chatContainer.nativeElement.scrollTop = this.chatContainer.nativeElement.scrollHeight;
+    this.ngAfterViewChecked()
   }
 }

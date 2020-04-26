@@ -32,6 +32,8 @@ export class SocketService {
   private subUserLost: Subject<any> = new Subject<any>();
   // Subject para inscrever info de novo Hoster
   private subNewHost: Subject<any> = new Subject<any>();
+  // Subject para inscrever alguém está digitando
+  private subTyping: Subject<number> = new Subject<number>();
 
   constructor() {
   }
@@ -78,6 +80,10 @@ export class SocketService {
     this.socket.on('newHost', (chatHoster: any) => {
       return this.subNewHost.next(chatHoster);
     })
+
+    this.socket.on('someTyping', (id: number) => {
+      return this.subTyping.next(id);
+    })
   }
 
   sendSymKey(symKeyInfo: any) {
@@ -98,6 +104,10 @@ export class SocketService {
    */
   sendMsg(msg: Message) {
     this.socket.emit('message', msg);
+  }
+
+  sendTyping(id: number) {
+    this.socket.emit('typing', id)
   }
 
   receiveConnectAck() {
@@ -137,6 +147,10 @@ export class SocketService {
    */
   receiveMsg() {
     return this.subMsg.asObservable();
+  }
+
+  receiveTyping() {
+    return this.subTyping.asObservable();
   }
 
 }

@@ -15,6 +15,7 @@ import { MessageService } from 'primeng/api';
 import { SidebarModule } from 'primeng/sidebar';
 import { DialogModule } from 'primeng/dialog';
 import { AccordionModule } from 'primeng/accordion';
+import { ProgressBarModule } from 'primeng/progressbar';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { AccordionModule } from 'primeng/accordion';
     ToastModule,
     SidebarModule,
     DialogModule,
-    AccordionModule
+    AccordionModule,
+    ProgressBarModule
   ],
   providers: [MessageService],
   bootstrap: [AppComponent]
