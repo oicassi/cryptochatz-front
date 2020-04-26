@@ -19,7 +19,7 @@
             (click)="op.toggle($event)" style="cursor: pointer;" *ngIf="message.id != -999">
             <div class="msgHeaderContainer">
               <p class="msgHeaderTxt">
-                {{ message.id == id ? 'eu' : message.from }}
+                {{ message.id == id ? 'eu' : (message.from + ' [' + message.id + ']')}}
               </p>
             </div>
             <p-scrollPanel [style]="{width: '90%', height: '90%' }">
@@ -52,6 +52,7 @@
             <p><span style="font-weight: bold;">ID: </span> {{id}}</p>
             <p><span style="font-weight: bold;">Nome: </span>{{name}}</p>
             <p><span style="font-weight: bold;">SocketId: </span>{{socketId}}</p>
+            <p><span style="font-weight: bold;">Hoster: </span>{{chatHoster}}</p>
             <p-accordion>
               <p-accordionTab header="Private Key">
                 {{privateKey}}
@@ -132,7 +133,7 @@
   </div>
 
   <!-- Info de alguém está digitando -->
-  <div style="position:fixed;bottom: 16%;left: 10%; z-index: 9999; width: 25px;" *ngIf="theyTyping">
+  <div style="position:fixed;bottom: 16%;left: 10%; z-index: 9999; width: 25px;" *ngIf="theyTyping && isChatting">
     <button pButton type="button" pTooltip="Alguém está digtando" disabled class="ui-button-rounded ui-button-secondary"
       icon="pi pi-ellipsis-h">
       <p-progressBar mode="indeterminate" [style]="{'height': '3px'}"></p-progressBar>

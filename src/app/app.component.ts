@@ -21,6 +21,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
   symKey: string;
   name: string;
   id: number;
+  chatHoster: string;
   btnWait: boolean = false;
   canScroll: boolean = false;
   showBtnScroll: boolean = false;
@@ -101,8 +102,10 @@ export class AppComponent implements OnInit, AfterViewChecked {
         }
         if (chatInfo.id != this.id) {
           this._messageServ.add({ severity: 'info', summary: 'Info', detail: `Hoster do chat ${chatInfo.name} [ID: ${chatInfo.id}]` });
+          this.chatHoster = `${chatInfo.name} [${chatInfo.id}]`;
         } else {
           this._messageServ.add({ severity: 'success', summary: 'Em chat', detail: 'Você iniciou o chat' });
+          this.chatHoster = 'Você é o hoster';
         }
       })
 
@@ -169,6 +172,8 @@ export class AppComponent implements OnInit, AfterViewChecked {
       .subscribe((chatHoster: any) => {
         if (this.isChatting) {
           let msg = (chatHoster.id == this.id ? 'Você é o novo Hoster do chat' : `${chatHoster.name} [ID: ${chatHoster.id}] é o novo Hoster do chat`);
+          let hosterMsg = (chatHoster.id == this.id ? 'Você é hoster' : `${chatHoster.name} [ID: ${chatHoster.id}]`);
+          this.chatHoster = hosterMsg;
           this._messageServ.add({ severity: 'info', summary: 'Mudança de Hoster', detail: msg });
         }
       })
@@ -219,6 +224,7 @@ export class AppComponent implements OnInit, AfterViewChecked {
         id: this.id,
         name: this.name,
         socketId: this.socketId,
+        publicKey: this.publicKey,
       }
       this._socketServ.startChat(userChatInfo);
     } else {
