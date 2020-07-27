@@ -7,7 +7,11 @@ The objective of this activity is to create a simple chat application that appli
 The goal is to simulate a scenario where the messages can be shared securely.  
    
 ### This is the frontend of the application   
-[Backend](https://github.com/kruchelski/cryptochatz-back)   
+[Backend](https://github.com/kruchelski/cryptochatz-back)
+
+### Overview
+Here's an example screenshot of the application running
+![Application Overview](./show/ps1.png)
    
 
 ### In fewer words...   
@@ -72,6 +76,9 @@ The server will print out some info on the console (in terminal, for example) du
 * After the client connects, the server provide an ID number and the ID of the socket connection.
 * Next, the client must type the symmetric key to be able to start a chat
 * After that, the chat is started and everyone should be able to chat!
+
+#### Screenshot showing Infos about the chat status (including the key pair and the symmetric key)
+![Application Overview](./show/ps2.png)
 
 #### Important considerations
 * When already there is a chat started, the client is notified about that when it connects to the server. At the same time the application request to the server the symmetric key. The server stores the info of who started the chat and then request to this client (the Hoster) the symmetric key, passing the public key of the client that made the request. The hoster client then encrypt the symmetric key with the public key provided by the server and then returns the cipher to server that returns the cipher to the client that requested the symmetric key. The client decrypt the cipher and get access to the symmetric key.
